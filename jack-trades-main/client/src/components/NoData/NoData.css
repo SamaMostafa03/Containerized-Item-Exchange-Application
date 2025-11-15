@@ -1,0 +1,8 @@
+.no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    text-transform: capitalize;
+    color: gray;
+}

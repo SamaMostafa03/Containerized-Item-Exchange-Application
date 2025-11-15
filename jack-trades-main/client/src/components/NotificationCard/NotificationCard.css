@@ -1,0 +1,148 @@
+.notifications-card {
+  margin: 0 auto;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  height: 90px;
+  width: 80%;
+  gap: 40px;
+  padding-left: 16px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  border-left: 1px #1B4B66 solid;
+  align-items: center;
+  position: relative;
+}
+
+.notifications-card:hover{
+  background-color: rgba(216, 208, 208, 0.711);
+}
+/* user info container */ 
+
+.user-info-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+ /* user image  */
+.user-info-card .user-img {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.user-info-card .user-img div{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  object-position: center;
+}
+
+.user-info-card .name {
+  font-family: "Inter", sans-serif;
+  font-weight: bold;
+  font-size: 1rem;
+  text-transform: capitalize;
+}
+
+.user-info-card .status{
+  font-family: Arial, Helvetica, sans-serif, sans-serif;
+  color: #fff;
+  font-size: 12px;
+  padding: 0.3rem 0.5rem;
+  border-radius: 10px;
+}
+
+.notification-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification-info .request {
+  font-family: Arial, Helvetica, sans-serif, sans-serif;
+  color: rgb(102, 102, 102);
+  font-size: 1rem;
+}
+
+.product-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1.1rem;
+}
+
+/* the image of the product */
+.notification-product-Image {
+  width: 5.5rem;
+  height: 100%;
+  border-radius: 1px;
+  position: absolute;
+  right: 0;
+}
+
+.notification-product-Image img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* icons container  */
+.icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 1rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.429);
+}
+
+.icons abbr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1B4B66;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 50%;
+}
+
+.icons abbr > *{
+  font-size: 1.9rem;
+  cursor: pointer;
+  color: #FFF;
+  font-weight: bold;
+}
+
+.user-info-card, .notification-info, .product-image-container {
+  width: 33%;
+}
+
+.user-info-card a{
+  text-decoration: none;
+  color: var(--dark-blue)
+}
+
+/*  single icon  */
+
+.icons div{
+  display: flex;
+  gap: 1.2rem;
+  color: white;
+}
+ /* the date */
+.notification-date {
+  font-family: Arial, Helvetica, sans-serif, sans-serif;
+  color: rgb(102, 102, 102);
+  font-size: 13px;
+}
+
+.swal2-container {
+  z-index: 1000000 !important;
+}

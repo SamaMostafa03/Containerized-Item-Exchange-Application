@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Raleway:ital,wght@0,300;0,600;1,400;1,500&family=Roboto:ital,wght@0,300;1,300&family=Work+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #1b4b66;
+}
+
+.div-parent {
+  position: relative;
+  height: 70vh;
+  background-image: url('../../assets/headerImage.png');
+  background-size: cover;
+  background-position: center;
+  width: 92%;
+  margin: 2rem auto 4rem;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.div-parent::before{
+  content: "";
+  position:absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  width: 100%;
+  height: 100%;
+}
+
+.div-intro {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  filter: brightness(110%);
+  display: flex;
+  justify-content: flex-start;
+  gap: 1.5rem ;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 50%;
+  background-color: rgba(222, 222, 222, 0.7);
+  border-radius: 10px;
+  color: var(--primary);
+  padding: 1rem 2rem;
+}
+
+.div-intro h1 {
+  font-family: 'Inter', sans-serif ;
+  font-weight: 900 ;
+  font-size: 2.8rem;
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .div-parent {
+    position: relative;
+    height: 80vh;
+    width: 90%;
+    margin: 2rem auto 4rem;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .div-intro h1 {
+    font-size: 2.2rem;
+  }
+
+  .div-intro h6 {
+    padding: 0;
+    width: 90%;
+    font-size: 1rem;
+  }
+
+  .div-intro button {
+    width: auto;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    padding: 0.5rem 1.5rem;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .div-parent {
+    position: relative;
+    height: 80vh;
+    width: 90%;
+    margin: 2rem auto 4rem;
+    border-radius: 20px;
+    overflow: hidden;
+    object-fit: cover;
+    padding: 0 1rem;
+  }
+
+  .div-intro {
+    right: 50%;
+    top: 95%;
+    transform: translate(50%, -100%);
+    width: 95%;
+    padding: 1rem 3rem;
+  }
+
+  .div-intro h1 {
+    font-size: 2.2rem;
+  }
+
+  .div-intro h6 {
+    padding: 0;
+    width: 50%;
+    font-size: 1rem;
+  }
+
+  .div-intro button {
+    width: auto;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    padding: 0.5rem 1.5rem;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .div-parent {
+    position: relative;
+    height: 80vh;
+    width: 90%;
+    margin: 2rem auto 4rem;
+    border-radius: 20px;
+    overflow: hidden;
+    object-fit: cover;
+    padding: 0 1rem;
+  }
+
+  .div-intro {
+    right: 50%;
+    top: 98%;
+    transform: translate(50%, -100%);
+    width: 95%;
+    padding: 1rem 2rem;
+  }
+
+  .div-intro h1 {
+    font-size: 2rem;
+  }
+
+  .div-intro h6 {
+    padding: 0;
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .div-intro button {
+    width: auto;
+    flex-shrink: 0;
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+  }
+}

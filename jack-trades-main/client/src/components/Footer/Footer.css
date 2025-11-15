@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=Inter:wght@100;200;300;400;500&family=Nanum+Gothic:wght@400;700;800&family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#footer {
+  font-family: "Inter", sans-serif;
+  background-color: #1B4B66;
+}
+
+#footer h6 {
+  color: #E2E8EB;
+}
+
+#footer ul li {
+  color: #aeb3b6;
+  padding-bottom: .2rem;
+}
+
+#footer ul li svg {
+  padding-right: 1rem;
+  font-size: 2.7rem;
+  transition: 0.3s all;
+}
+
+#footer ul li svg:hover {
+  color: #FFF
+}

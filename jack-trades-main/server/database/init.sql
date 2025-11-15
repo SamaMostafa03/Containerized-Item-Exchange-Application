@@ -1,0 +1,9 @@
+BEGIN;
+
+CREATE DATABASE jacktrades;
+
+CREATE USER team8 WITH SUPERUSER PASSWORD 'password';
+
+ALTER DATABASE jacktrades OWNER TO team8;
+
+COMMIT;

@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=Inter:wght@100;200;300;400;500&family=Nanum+Gothic:wght@400;700;800&family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+:root{
+    --dark-blue: #1B4B66;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+
+.user-profile{
+    /* padding: 0rem 3rem; */
+    /* width: 80%; */
+    /* margin: 1rem auto auto; */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    /* height: 600px; */
+}
+
+.user-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1rem 0;
+    /* border-radius: 10px; */
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 1px 5px;
+    position: relative;
+    /* border-bottom: solid gray 0.5px; */
+}
+
+.user-info::before{
+    content: '';
+    position: absolute;
+    width: 100%;
+    background-color: #95afbe;
+    background-image: url('https://static.vecteezy.com/system/resources/previews/008/935/681/non_2x/abstract-banner-web-header-blue-laser-line-curved-with-sparkle-lighting-on-dark-blue-space-background-vector.jpg');
+    background-repeat: no-repeat;
+    background-size:cover;
+    opacity: 0.8;
+    left: 0;
+    top: 0;
+    height: 40%;
+    z-index: -1;
+}
+
+.user-info .user-img{
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;   
+}
+
+.user-info .user-img{
+    font-size: 3rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--dark-blue);
+}
+
+.user-info > * {
+    margin-bottom: 2rem !important;
+}
+
+.user-info h4 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    text-transform: capitalize;
+}
+
+.user-info p {
+    text-align: center;
+    color: var(--dark-blue);
+}
+
+.user-info .user-nav{
+ width: 90%;
+ display: flex;
+ justify-content: space-between;
+ padding: 0.5rem;
+ text-decoration: none;
+ color: #fff;
+}
+
+.user-info .user-nav a {
+    text-decoration: none;
+}
+
+.user-info .profile-btn button{
+    margin:  0 0.5rem;
+    height: 2.5rem;
+    width: 150px;
+    background-color: var(--dark-blue);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 5px;
+}
+
+.user-info .profile-btn button:hover{
+  background-color: white;
+  border: 1px solid #1b4b66;
+  color: #1b4b66;
+  transition: ease-in-out 0.2s;
+}

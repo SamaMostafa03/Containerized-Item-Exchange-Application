@@ -1,0 +1,13 @@
+.product-card .product-details .buttons .wishlist-remove-btn {
+    width: 155px;
+}
+
+.product-card .product-details .description {
+    width: 100%;
+    font-size: 1.1rem;
+    padding-right: 1rem;
+}
+
+.user-products .loading {
+    height: 300px;
+}

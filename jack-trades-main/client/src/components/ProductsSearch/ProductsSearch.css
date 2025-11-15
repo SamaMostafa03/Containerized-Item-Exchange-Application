@@ -1,0 +1,38 @@
+
+/* .Autocomplete.css-gt99oo {
+  background-color: yellow;
+
+} */
+
+.Autocomplete.css-qm9mjt-MuiAutocomplete-root:focus-visible * {
+  outline: none;
+}
+
+.Autocomplete .css-md26zr-MuiInputBase-root-MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border: 1px solid #DDD;
+}
+
+.Autocomplete .css-md26zr-MuiInputBase-root-MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border: 1px solid #CCC;
+}
+.Autocomplete .css-md26zr-MuiInputBase-root-MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border: 1px solid #CCC;
+}
+
+/* .Autocomplete .MuiOutlinedInput-notchedOutline .css-141o706 {
+  color: black;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  display: inline-block;
+  opacity: 0;
+  visibility: visible;
+} */
+
+.Autocomplete .css-yjsfm1>span {
+  color: black;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  display: inline-block;
+  /* opacity: 0; */
+  visibility: visible;
+}

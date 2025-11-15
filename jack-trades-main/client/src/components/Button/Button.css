@@ -1,0 +1,73 @@
+/* general design */
+
+.btn {
+  text-transform: "none";
+  background-color: #1b4b66;
+  color: white;
+  width: 200px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition: border-color 0.5s, background-color 0.5s, color 0.5s;
+}
+.btn:hover {
+  background-color: white;
+  border: 1px solid #1b4b66;
+  color: #1b4b66;
+  cursor: pointer;    
+}
+/* Login btn of the signUp page */
+.btn-login p {
+  color: white;
+  text-decoration: none;
+  font-family: "Poppins";
+  font-size: 14px;
+  font-weight: 500;
+}
+.btn:hover p {
+  color: #1b4b66;
+
+}
+.btn-login{
+ width: 120px;
+  margin-right: 20px;
+}
+/* create account button of the signUp page  */
+.create-account-btn {
+  width: 80%;
+  height: 40px;
+}
+
+/*  white buttons for product details page   */
+.white-btn {
+  color: #1b4b66;
+  background-color: white;
+  border: 1px solid #1b4b66;
+}
+.white-btn:hover {
+  color: white;
+  background-color: #1b4b66;
+}
+
+/* Navbar button */
+.navbar-btn {
+  width: 100px;
+  border-radius: 5px;
+}
+/* header button */
+.headerBtn {
+  width: 170px;
+  border-radius: 5px;
+}
+
+.userInfoBtn {
+  width: 170px;
+  height: 30px;
+}
+.disabled-button {
+  background-color: red;
+}

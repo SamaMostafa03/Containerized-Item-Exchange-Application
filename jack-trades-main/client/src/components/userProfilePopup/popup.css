@@ -1,0 +1,86 @@
+.profile-dialog-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* body1 is the variant of typography */
+.profile-dialog-title .body1 {
+  font-size: 15px;
+}
+
+/* the close button */
+.profile-dialog-title button {
+  background-color: white;
+}
+/* The whole form, it contains all inputs with the image input  */
+.update-profile-form {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  /* The Box that contains the image and the icon */
+.image-box{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.image-box .user-img-popup{
+position: absolute;
+width: 80px;
+height: 80px;
+border-radius: 50%;
+}
+
+.image-box .camera-icon{
+    position: relative;
+    left: 30px;
+    top: 40px;
+}
+
+.profile-names {
+  display: flex;
+  width: 120px;
+  width: 100%;
+  margin-top: 25px;
+  justify-content: space-between;
+}
+
+.profile-names .firstName {
+  width: 45%;
+}
+
+.profile-names .lastName {
+  width: 45%;
+}
+
+.profile-bio {
+  padding: 6px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.email {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.profile-submit {
+  width: 150px;
+  height: 35px;
+  font-size: 16px;
+}
+
+.profile-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 12px;
+  text-align: center;
+}
+.profile-popup-loading {
+  text-align: center;
+  margin-top: 10px;
+}

@@ -1,0 +1,186 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300&family=Raleway:ital,wght@0,300;0,600;1,400;1,500&family=Roboto:ital,wght@0,300;1,300&family=Work+Sans:wght@200;300;400;500;600;700;800&display=swap");
+/* Form component */
+.account-part {
+  background: #ffffff;
+  width: 52%;
+  box-shadow: 0px 8px 32px 16px rgba(68, 170, 238, 0.19);
+}
+
+.account-part form {
+  height: 100%;
+  width: 100%;
+  padding: 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+}
+
+.header-2 {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.header-2 p {
+  margin: 0;
+}
+
+.header-2 a {
+  width: auto;
+  height: 100%;
+}
+
+.header-2 a button{
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem 1.5rem;
+}
+
+.account-part form main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.account-part form main h2 {
+  width: 100%;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: rgba(51, 51, 51, 1);
+  text-align: center;
+}
+
+/* Form container */
+.content-2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  gap: 1.5rem;
+}
+
+.content-2 > div {
+  width: 100%;
+}
+
+/* names input container  */
+.inputs-names-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.inputs-names-container > div {
+  width: calc(95% / 2);
+}
+
+.inputs-names-container > div > div {
+  width: 100%;
+}
+
+/* All other inputs  */
+.css-1x51dt5-MuiInputBase-input-MuiInput-input{
+  padding: 0px;
+}
+
+.inputs {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  margin-left: 16%;
+  padding: 0px !important;
+}
+
+.lastName {
+  margin-left: 20px;
+}
+
+::placeholder {
+  color: rgba(204, 204, 204, 1);
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 80%;
+  margin-bottom: 2px;
+}
+.buttons-container button{
+  width: 100%;
+  height: 35px;
+}
+
+.or {
+  color: rgb(3, 3, 3);
+}
+.buttons-container .google {
+  display: flex;
+  gap: 10px;
+  background-color: #ffffff;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  justify-content: center;
+  height: 35px;
+  padding-top: 5px;
+}
+.buttons p {
+  font-size: 12px;
+}
+
+.p-google {
+  color: rgb(102, 102, 102);
+  font-family: "Poppins";
+}
+.img-google {
+  width: 30px;
+}
+
+.google:hover {
+background-color:#1b4b66;
+}
+
+.google:hover p {
+  color: white;
+}
+
+.terms {
+  color: rgb(102, 102, 102);
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .account-part form {
+    padding: 1rem 2rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .account-part form {
+    padding: 1rem 2rem;
+  }
+
+  .header-2 a button{
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem 1.2rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .account-part {
+    width: 100%;
+    height: 100%;
+  }
+
+  .account-part form {
+    padding: 2rem 2.5rem;
+    justify-content: center;
+  }
+}

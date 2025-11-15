@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=Inter:wght@100;200;300;400;500&family=Nanum+Gothic:wght@400;700;800&family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+:root{
+    --dark-blue: #1B4B66
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+.popupCard {
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.popupModal button{
+    background-color: var(--dark-blue);
+}
+
+.popupModal h5 {
+    color: var(--dark-blue);
+    margin: 0.5rem auto;
+}
+
+.popupModal .add-data-pop {
+    background-color: #fff;
+    height: 22rem;
+    width: 25rem;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.popupModal .add-data-pop button {
+    color: #fff;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.popupModal a{
+    color: rgb(105, 146, 234);
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.swal2-container {
+  z-index: 1000000 !important;
+}

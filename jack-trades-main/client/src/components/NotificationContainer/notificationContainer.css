@@ -1,0 +1,29 @@
+.notifications-container {
+  width: 80%;
+  margin: 0 auto;
+  margin-top: 2rem;
+  min-height: 500px;
+}
+
+.notification-header .notification {
+  width: 80%;
+  height: 20px;
+  display: flex;
+  gap: 7px;
+  margin-top: 20px;
+  align-items: center;
+  margin: auto;
+  color: rgba(0, 0, 0, 0.496);
+}
+ .notification h4 {
+font-size: 25px;
+}
+.line {
+  width: 80%;
+  margin-bottom: 15px;
+  margin: auto;
+}
+
+.swal2-container {
+  z-index: 1000000 !important;
+}
