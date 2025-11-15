@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-jackuser}"]
       interval: 10s
@@ -29,8 +30,8 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: ${PORT:-8000}
       DEV_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/${DB_NAME:-jack_trades_dev}
-      TEST_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/${DB_NAME:-jack_trades_test}
-      DATABASE_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/${DB_NAME:-jack_trades_prod}
+      TEST_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/jack_trades_test
+      DATABASE_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/jack_trades_prod
       SECRET_TOKEN: ${SECRET_TOKEN:-your-secret-key-here}
       JACK_TRADES: http://localhost:3000
     ports:
