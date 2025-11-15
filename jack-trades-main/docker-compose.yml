@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: jack-trades-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-jackuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-jackpass}
+      POSTGRES_DB: ${DB_NAME:-jack_trades_dev}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-jackuser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jack-trades-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jack-trades-backend
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-8000}
+      DEV_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/${DB_NAME:-jack_trades_dev}
+      TEST_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/${DB_NAME:-jack_trades_test}
+      DATABASE_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/${DB_NAME:-jack_trades_prod}
+      SECRET_TOKEN: ${SECRET_TOKEN:-your-secret-key-here}
+      JACK_TRADES: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./dist:/app/dist
+      - ./client/build:/app/client/build
+    networks:
+      - jack-trades-network
+    restart: unless-stopped
+
+  frontend:
+    image: node:18-alpine
+    container_name: jack-trades-frontend-dev
+    working_dir: /app/client
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    command: npm start
+    depends_on:
+      - backend
+    networks:
+      - jack-trades-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  jack-trades-network:
+    driver: bridge
