@@ -44,4 +44,4 @@ EXPOSE 8000
 
 # Use dumb-init to run node
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["npm", "start"]
+CMD ["npm", "dev"]
