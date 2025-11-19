@@ -10,8 +10,10 @@ COPY package*.json tsconfig.json ./
 COPY server ./server
 COPY client ./client
 
-# Install dependencies
-RUN npm ci
+# --- Add bcrypt build dependencies before npm ci ---
+RUN apk add --no-cache python3 make g++ \
+    && npm ci \
+    && apk del python3 make g++
 
 # Build TypeScript backend
 RUN npm run build
@@ -30,8 +32,10 @@ RUN apk add --no-cache dumb-init
 # Copy root package files
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm ci --omit=dev
+# Install production-only dependencies
+RUN apk add --no-cache python3 make g++ \
+    && npm ci --omit=dev \
+    && apk del python3 make g++
 
 # Copy built backend from builder
 COPY --from=builder /app/dist ./dist
@@ -42,6 +46,5 @@ COPY --from=builder /app/client/build ./client/build
 # Expose port
 EXPOSE 8000
 
-# Use dumb-init to run node
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["npm", "start"]
