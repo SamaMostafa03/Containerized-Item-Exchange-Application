@@ -38,7 +38,7 @@ services:
       TEST_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/jack_trades_test
       DATABASE_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/jack_trades_prod
       SECRET_TOKEN: ${SECRET_TOKEN:-your-secret-key-here}
-      JACK_TRADES: http://localhost:3000
+      JACK_TRADES: http://frontend:3000
     ports:
       - "8000:8000"
     depends_on:
@@ -56,10 +56,10 @@ services:
       - ./client:/app/client
       - node_modules_frontend:/app/client/node_modules
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/api/v1
+      - REACT_APP_API_URL=http://backend:8000/api/v1
     ports:
       - "3000:3000"
-    command: sh -c "npm install && npm start"
+    command: sh -c "rm -rf node_modules/.package-lock.json && npm ci && npm start"
     depends_on:
       - backend
     networks:
