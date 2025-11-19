@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:14-alpine
     container_name: jack-trades-db
     environment:
       POSTGRES_USER: ${DB_USER:-jackuser}
@@ -57,10 +57,9 @@ services:
       - node_modules_frontend:/app/client/node_modules
     environment:
       - REACT_APP_API_URL=http://localhost:8000/api/v1
-      - CHOKIDAR_USEPOLLING=true  # Better file watching in Docker
     ports:
       - "3000:3000"
-    command: sh -c "rm -rf node_modules/.package-lock.json && npm ci && npm start"
+    command: sh -c "npm install && npm start"
     depends_on:
       - backend
     networks:
