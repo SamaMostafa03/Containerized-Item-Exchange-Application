@@ -138,6 +138,77 @@ docker-compose exec backend sh
 docker-compose exec frontend sh
 ```
 
+## **Seeding Data (local & Docker)**
+
+The project includes a seeding script at `server/database/build.ts`. There are npm scripts that run it with the `SEED` flag so the database is populated with sample data for development and testing.
+
+1) Local (no Docker)
+
+ - Install dependencies and create your `.env` with a valid `DEV_DB_URL` pointing to your local PostgreSQL instance.
+
+```bash
+cd jack-trades-main
+npm ci
+# ensure .env contains a valid DEV_DB_URL, e.g.: DEV_DB_URL=postgres://jackuser:jackpass@localhost:5432/jack_trades_dev
+npm run db:seed
+```
+
+The `db:seed` script runs: `cross-env SEED=true NODE_ENV=development ts-node server/database/build.ts` and will insert seed data into the development database.
+
+To seed the test database (explicitly) you can run:
+
+```bash
+# with cross-env available via npx
+npx cross-env SEED=true NODE_ENV=test ts-node server/database/build.ts
+```
+
+2) With Docker Compose
+
+ - Start services (if not already running):
+
+```bash
+cd jack-trades-main
+docker-compose up -d
+```
+
+ - Run the seed script inside the backend container:
+
+```bash
+docker-compose exec backend npm run db:seed
+# or, if backend isn't running, run one-off:
+docker-compose run --rm backend npm run db:seed
+```
+
+If you run the seeder directly with `ts-node` inside the container (you used this locally), these commands work as well:
+
+```bash
+# run with npx ts-node inside the backend container
+docker compose exec backend npx ts-node server/database/build.ts
+
+# set SEED env inline and run
+docker compose exec backend sh -c "SEED=true npx ts-node server/database/build.ts"
+```
+
+If you've moved/compiled the seeder to an `out` or `dist` directory (compiled JS), run the compiled script with `node` instead of `ts-node` and adjust the path, for example:
+
+```bash
+# example when seeder compiled to server/dist/database/build.js
+docker compose exec backend node server/dist/database/build.js
+```
+
+3) Production seeding
+
+There is a `db:seed:production` script that runs the same seeder with `NODE_ENV=production`:
+
+```bash
+npm run db:seed:production
+```
+
+Notes:
+- The seeder respects the `NODE_ENV` to select the appropriate DB URL from `server/database/connection.ts` (DEV/TEST/PROD).
+- When using Docker, the included `init-db.sh` will create the three databases on first postgres startup; if you need that script to run again, remove the postgres volume and recreate containers (`docker-compose down -v`).
+- If seeding fails with connection errors, verify your `.env` values and that Postgres is accepting connections.
+
 
 ## **Database Setup**
 
