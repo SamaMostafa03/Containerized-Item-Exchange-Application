@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jack-trades-frontend
+  namespace: jack-trades-ns
+  labels:
+    app: jack-trades-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jack-trades-frontend
+  template:
+    metadata:
+      labels:
+        app: jack-trades-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: 155931191229.dkr.ecr.eu-north-1.amazonaws.com/jack-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: REACT_APP_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: jack-trades-config
+              key: REACT_APP_API_URL
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "300m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  namespace: jack-trades-ns
+  labels:
+    app: jack-trades-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: jack-trades-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
