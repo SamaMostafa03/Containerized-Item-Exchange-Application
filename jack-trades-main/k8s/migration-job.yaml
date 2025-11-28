@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jack-trades-db-migrate
+  namespace: jack-trades-ns
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: migrate
+        image: 155931191229.dkr.ecr.eu-north-1.amazonaws.com/jack-backend:latest
+        command: ["sh", "-c"]
+        args:
+          - |
+            echo "Running DB migrations with build.ts...";
+            npx ts-node server/database/build.ts;
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: jack-trades-db-secret
+              key: DATABASE_URL
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jack-trades-db-seed
+  namespace: jack-trades-ns
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: seed
+        image: 155931191229.dkr.ecr.eu-north-1.amazonaws.com/jack-backend:latest
+        command: ["sh", "-c"]
+        args:
+          - |
+            echo "Seeding DB...";
+            SEED=true npx ts-node server/database/build.ts;
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: jack-trades-db-secret
+              key: DATABASE_URL

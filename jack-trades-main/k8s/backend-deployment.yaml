@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jack-trades-backend
+  namespace: jack-trades-ns
+  labels:
+    app: jack-trades-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jack-trades-backend
+  template:
+    metadata:
+      labels:
+        app: jack-trades-backend
+    spec:
+      containers:
+      - name: backend
+        image: 155931191229.dkr.ecr.eu-north-1.amazonaws.com/jack-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: jack-trades-config
+              key: NODE_ENV
+
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: jack-trades-config
+              key: PORT
+
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: jack-trades-db-secret
+              key: DATABASE_URL
+
+        - name: SECRET_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: jack-trades-app-secret
+              key: SECRET_TOKEN
+
+        - name: REDIS_URL
+          value: "redis://redis:6379"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+  namespace: jack-trades-ns
+  labels:
+    app: jack-trades-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: jack-trades-backend
