@@ -15,13 +15,18 @@ spec:
         args:
           - |
             echo "Running DB migrations with build.ts...";
-            npx ts-node server/database/build.ts;
+            NODE_ENV=production node dist/database/build.js
+            echo " Migration completed!"
+
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
               name: jack-trades-db-secret
               key: DATABASE_URL
+        - name: NODE_ENV
+          value: "production"
+
 ---
 
 apiVersion: batch/v1
@@ -30,21 +35,38 @@ metadata:
   name: jack-trades-db-seed
   namespace: jack-trades-ns
 spec:
-  backoffLimit: 2
+  backoffLimit: 3
   template:
     spec:
       restartPolicy: OnFailure
+      initContainers:
+      # Wait for migration to complete
+      - name: wait-for-migration
+        image: busybox:1.36
+        command:
+          - sh
+          - -c
+          - |
+            echo " Waiting for migration to complete..."
+            sleep 15
+            echo " Proceeding with seed"
+
       containers:
       - name: seed
         image: public.ecr.aws/a9o4o2s3/jack-backend:latest
         command: ["sh", "-c"]
         args:
           - |
-            echo "Seeding DB...";
-            SEED=true npx ts-node server/database/build.ts;
+            echo " Seeding database..."
+            SEED=true NODE_ENV=production node dist/database/build.js
+            echo " Seed completed!"        
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
               name: jack-trades-db-secret
               key: DATABASE_URL
+        - name: NODE_ENV
+          value: "production"
+        - name: SEED
+          value: "true"
