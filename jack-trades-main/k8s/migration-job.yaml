@@ -10,7 +10,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: migrate
-        image: 155931191229.dkr.ecr.eu-north-1.amazonaws.com/jack-backend:latest
+        image: public.ecr.aws/a9o4o2s3/jack-backend:latest
         command: ["sh", "-c"]
         args:
           - |
@@ -36,7 +36,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: seed
-        image: 155931191229.dkr.ecr.eu-north-1.amazonaws.com/jack-backend:latest
+        image: public.ecr.aws/a9o4o2s3/jack-backend:latest
         command: ["sh", "-c"]
         args:
           - |

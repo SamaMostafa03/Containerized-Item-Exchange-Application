@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 155931191229.dkr.ecr.eu-north-1.amazonaws.com/jack-frontend:latest
+        image: public.ecr.aws/a9o4o2s3/jack-frontend:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
