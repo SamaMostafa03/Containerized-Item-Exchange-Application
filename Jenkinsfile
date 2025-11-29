@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'worker' }
+    agent { label 'docker-slave-0' }
 
     environment {
         FRONTEND_IMAGE = "public.ecr.aws/a9o4o2s3/jack-frontend"
