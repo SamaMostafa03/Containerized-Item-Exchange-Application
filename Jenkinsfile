@@ -15,20 +15,13 @@ pipeline {
                     url: 'https://github.com/SamaMostafa03/Containerized-Item-Exchange-Application'
             }
         }
-
-        stage('Login to ECR') {
+        
+        stage('AWS ECR Login') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'aws-access-key', variable: 'AWS_ACCESS_KEY_ID'),
-                    string(credentialsId: 'aws-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
-                ]) {
+                withAWS(credentials: 'aws-access-key', region: 'us-east-1') {
                     sh '''
-                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                        aws configure set default.region us-east-1
-
-                        aws ecr-public get-login-password --region us-east-1 \
-                        | docker login --username AWS --password-stdin public.ecr.aws/a9o4o2s3
+                        aws ecr-public get-login-password --region us-east-1 | \
+                        docker login --username AWS --password-stdin public.ecr.aws/a9o4o2s3
                     '''
                 }
             }
