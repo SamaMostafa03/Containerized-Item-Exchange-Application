@@ -4,6 +4,9 @@
 
 - It demonstrates the full DevOps lifecycle including containerization, orchestration, cluster deployment, automation, CI/CD, and cloud infrastructure provisioning.
 
+## Architecture Design
+![Arch](https://github.com/SamaMostafa03/Containerized-Item-Exchange-Application/blob/main/Images/Arch.png?raw=true)
+
 ## **Architecture Overview** 
 
 This Repo explains how the **Item Exchange App** is deployed using: 
@@ -14,6 +17,7 @@ This Repo explains how the **Item Exchange App** is deployed using:
 - **Ingress (Traefik)**
 - **CI/CD (Jenkins Pipeline)**
 - **Automated Deployments to K3s**
+
 
 ## **1. Containerization** 
 Both the frontend and backend services were containerized using:
