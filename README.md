@@ -73,3 +73,14 @@ Pipeline stages:
 - Build backend image
 - Push both images
 - Deploy to K3s using
+
+## **Team Members Infrastructure Automation & DevOps Enhancements**
+  - [Ahmed Elshewemy](https://github.com/AhmedElshewemy)
+  - [Sama Mostafa](https://github.com/SamaMostafa03/)
+
+
+## **Team Members backend & frontend**
+- [Muhammad Abdulhadi](https://github.com/Mu7ammadAbed)
+- [Sara Dahman](https://github.com/SaraDahman)
+- [Mohammed Balousha](https://github.com/MohammedOmar123)
+- [Abdalhakim Abumusameh](https://github.com/hkmusameh01)
