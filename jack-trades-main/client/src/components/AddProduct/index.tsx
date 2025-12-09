@@ -125,7 +125,7 @@ const AddProduct:FC = () => {
             [e.target.name]: { url: response.data.url, isLoading: false },
           };
 
-          formik.setValues((pre) => ({
+          formik.setValues((pre:IFormik) => ({
             ...pre, gallery: Object.values(newObj).filter((el) => !!el.url).map((el) => el.url),
           }));
           return newObj;

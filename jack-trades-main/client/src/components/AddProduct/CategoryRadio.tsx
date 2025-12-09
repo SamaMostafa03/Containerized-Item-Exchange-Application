@@ -47,6 +47,11 @@ const CategoryRadio:FC<ICategoryProps> = ({ formik }) => (
       <FormControlLabel
         value="6"
         control={<Radio id="6" />}
+        label="Kids"
+      />
+      <FormControlLabel
+        value="7"
+        control={<Radio id="7" />}
         label="Other"
       />
     </RadioGroup>
