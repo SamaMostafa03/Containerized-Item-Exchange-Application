@@ -7,3 +7,4 @@ data:
   NODE_ENV: "production"
   PORT: "8000"
   REACT_APP_API_URL: "/api/v1"
+  SECRET_KEY: your-secret-key-here

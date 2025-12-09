@@ -40,11 +40,11 @@ spec:
               name: jack-trades-db-secret
               key: DATABASE_URL
 
-        - name: SECRET_TOKEN
+        - name: SECRET_KEY
           valueFrom:
-            secretKeyRef:
-              name: jack-trades-app-secret
-              key: SECRET_TOKEN
+            configMapKeyRef:
+              name: jack-trades-config
+              key: SECRET_KEY
 
         - name: REDIS_URL
           value: "redis://redis:6379"
