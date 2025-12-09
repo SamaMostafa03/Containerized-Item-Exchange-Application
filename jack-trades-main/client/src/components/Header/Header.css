@@ -6,14 +6,14 @@
 
 .div-parent {
   position: relative;
-  height: 70vh;
-  background-image: url('../../assets/headerImage.png');
+  height: 700px;
+  background-image: url('../../assets/exchange-2.jpg');
   background-size: cover;
   background-position: center;
-  width: 92%;
-  margin: 2rem auto 4rem;
-  border-radius: 20px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 0rem 4rem;
 }
 
 .div-parent::before{
@@ -21,33 +21,38 @@
   position:absolute;
   top: 0;
   left: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.8);
   width: 100%;
   height: 100%;
 }
 
 .div-intro {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
   filter: brightness(110%);
   display: flex;
-  justify-content: flex-start;
-  gap: 1.5rem ;
+  justify-content: space-around;
+  /* gap: 3rem; */
   flex-direction: column;
   align-items: flex-start;
-  width: 50%;
-  background-color: rgba(222, 222, 222, 0.7);
+  width: 70%;
   border-radius: 10px;
-  color: var(--primary);
-  padding: 1rem 2rem;
+  color: #fff;
+  height: 70%;
 }
 
 .div-intro h1 {
-  font-family: 'Inter', sans-serif ;
+  font-family: 'Bitter', serif;
   font-weight: 900 ;
-  font-size: 2.8rem;
+  font-size: 6.5rem;
+}
+
+.div-intro .typed-cursor{
+  display: none;
+}
+
+.div-intro p {
+  font-size: 1.3rem;
+  padding-right: 10rem;
+  font-weight: 500 !important;
 }
 
 @media (min-width: 992px) and (max-width: 1199.98px) {

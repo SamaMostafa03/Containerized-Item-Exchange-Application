@@ -5,7 +5,6 @@ import './Navbar.css';
 import {
   Badge,
   Toolbar,
-  AppBar,
   Typography,
   Box,
   Menu,
@@ -39,6 +38,8 @@ const Navbar: FC = () => {
   const [anchor, setAnchor] = useState < SVGSVGElement | null>(null);
   const [openMessage, setOpenMessage] = useState<boolean>(false);
   const [messageNum, setMessageNum] = useState<number>(0);
+
+  const [nav, setNav] = useState(false);
   // start socket
   const fetchNotifications = async () => {
     try {
@@ -139,17 +140,28 @@ const Navbar: FC = () => {
     }
   };
 
+  const handleNavStyle = () => {
+    if (window.scrollY >= 100) {
+      setNav(true);
+    } else {
+      setNav(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleNavStyle);
+
+    return () => window.removeEventListener('scroll', handleNavStyle);
+  }, []);
+
   return (
-    <AppBar
-      sx={{
-        background: 'white',
-        boxShadow: '0 4px 4px -2px rgba(0,0,0,.2)',
-        position: 'sticky',
-      }}
+    <Box
+      className={nav ? 'scrolled nav' : 'nav'}
     >
       <Toolbar sx={{
         display: 'flex',
         justifyContent: 'space-between',
+        width: '100%',
       }}
       >
         <Typography
@@ -306,7 +318,7 @@ const Navbar: FC = () => {
             </Link>
           )}
       </Toolbar>
-    </AppBar>
+    </Box>
   );
 };
 

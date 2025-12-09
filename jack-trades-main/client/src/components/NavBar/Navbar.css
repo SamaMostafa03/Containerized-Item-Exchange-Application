@@ -10,15 +10,20 @@
     font-family: "Inter", sans-serif;
   }
 
+body{
+  position: relative;
+}
+
 .navbar ul {
   display: flex;
   gap: 20px;
   list-style-type: none;
   margin-right: 70px;
+  font-size: 1.1rem;
 } 
 
- .link,
- .link:after,
+.link,
+.link:after,
 .link:before {
   transition: all .5s;
   text-decoration: none;
@@ -80,4 +85,18 @@
 .messages .no-msgs{
   width: 150px;
   padding: 1rem;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 70px;
+}
+
+.scrolled {
+  box-shadow: 0 4px 4px -2px rgba(0,0,0,.2);
 }

@@ -1,13 +1,13 @@
 import request from "supertest";
 import sequelize from "../server/database/connection";
-import {app} from "../server/app";
+import { app } from "../server/app";
 import buildTables from "../server/database/build";
 const token = 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJKZW5uaWVAZ21haWwuY29tIiwiaWF0IjoxNjY2Nzg5MDg4fQ.ayqLDkuNwgfbQZGd5spE1F0KbfxuAa_wPpkt34AKHN4'
 
 beforeAll(() => buildTables());
 
 describe('Check for filters /products/filter', () => {
-  it('test the endpoint without any filter attatched', async () => {
+  it('test the endpoint without any filter attached', async () => {
     await request(app)
       .get('/api/v1/products/filter')
       .expect(200)
@@ -15,14 +15,16 @@ describe('Check for filters /products/filter', () => {
       .expect((res) => {
         expect(res.body.totalPages).toBe(2)
         expect(res.body.products[0]).toEqual({
-          id: 1, title: 'nice sofa', gallery: [
-            'https://apollo-singapore.akamaized.net/v1/files/sh0il57qfjfh3-IN/image;s=780x0;q=60 ',
-            'https://apollo-singapore.akamaized.net/v1/files/zjt3gsd2oobm2-IN/image;s=780x0;q=60'
+          id: 1,
+          title: "nice sofa",
+          gallery: [
+            "https://apollo-singapore.akamaized.net/v1/files/sh0il57qfjfh3-IN/image;s=780x0;q=60 ",
+            "https://apollo-singapore.akamaized.net/v1/files/zjt3gsd2oobm2-IN/image;s=780x0;q=60",
           ]
         })
       })
   })
-  it('test the endpoint without any filter attatched with offset', async () => {
+  it('test the endpoint without any filter attached with offset', async () => {
     await request(app)
       .get('/api/v1/products/filter?offset=1')
       .expect(200)
@@ -30,14 +32,16 @@ describe('Check for filters /products/filter', () => {
       .expect((res) => {
         expect(res.body.totalPages).toBe(2)
         expect(res.body.products[0]).toEqual({
-          id: 7, title: 'Jacques Durand', gallery: [
-            'https://cdn.rebelle.com//86/8649492_abd39855c1ac015cf78666200ee770f1.jpeg?width=514&height=510',
-            'https://cdn.rebelle.com//86/8649492_7dbf8f148e0aa18b72c6f77298512ef8.jpeg?width=514&height=510',
+          id: 7,
+          title: "Jacques Durand",
+          gallery: [
+            "https://cdn.rebelle.com//86/8649492_abd39855c1ac015cf78666200ee770f1.jpeg?width=514&height=510",
+            "https://cdn.rebelle.com//86/8649492_7dbf8f148e0aa18b72c6f77298512ef8.jpeg?width=514&height=510",
           ]
         })
       })
   })
-  it('test the endpoint without any filter attatched with cateogry', async () => {
+  it('test the endpoint without any filter attached with category', async () => {
     await request(app)
       .get('/api/v1/products/filter?category=2')
       .expect(200)
@@ -52,7 +56,7 @@ describe('Check for filters /products/filter', () => {
         })
       })
   })
-  it('test the endpoint without any filter attatched with newest', async () => {
+  it('test the endpoint without any filter attached with newest', async () => {
     await request(app)
       .get('/api/v1/products/filter?date=newest')
       .expect(200)
@@ -60,14 +64,16 @@ describe('Check for filters /products/filter', () => {
       .expect((res) => {
         expect(res.body.totalPages).toBe(2)
         expect(res.body.products[0]).toEqual({
-          id: 1, title: 'nice sofa', gallery: [
-            'https://apollo-singapore.akamaized.net/v1/files/sh0il57qfjfh3-IN/image;s=780x0;q=60 ',
-            'https://apollo-singapore.akamaized.net/v1/files/zjt3gsd2oobm2-IN/image;s=780x0;q=60'
+          id: 1,
+          title: "nice sofa",
+          gallery: [
+            "https://apollo-singapore.akamaized.net/v1/files/sh0il57qfjfh3-IN/image;s=780x0;q=60 ",
+            "https://apollo-singapore.akamaized.net/v1/files/zjt3gsd2oobm2-IN/image;s=780x0;q=60",
           ]
         })
       })
   })
-  it('test the endpoint without any filter attatched with newest', async () => {
+  it('test the endpoint without any filter attached with type=donation', async () => {
     await request(app)
       .get('/api/v1/products/filter?type=donation')
       .expect(200)
@@ -75,14 +81,16 @@ describe('Check for filters /products/filter', () => {
       .expect((res) => {
         expect(res.body.totalPages).toBe(1)
         expect(res.body.products[0]).toEqual({
-          id: 1, title: 'nice sofa', gallery: [
-            'https://apollo-singapore.akamaized.net/v1/files/sh0il57qfjfh3-IN/image;s=780x0;q=60 ',
-            'https://apollo-singapore.akamaized.net/v1/files/zjt3gsd2oobm2-IN/image;s=780x0;q=60'
+          id: 1,
+          title: "nice sofa",
+          gallery: [
+            "https://apollo-singapore.akamaized.net/v1/files/sh0il57qfjfh3-IN/image;s=780x0;q=60 ",
+            "https://apollo-singapore.akamaized.net/v1/files/zjt3gsd2oobm2-IN/image;s=780x0;q=60",
           ]
         })
       })
   })
-  it('test the endpoint without any filter attatched with type=exchange', async () => {
+  it('test the endpoint without any filter attached with type=exchange', async () => {
     await request(app)
       .get('/api/v1/products/filter?type=exchange')
       .expect(200)
@@ -96,7 +104,7 @@ describe('Check for filters /products/filter', () => {
         })
       })
   })
-  it('test the endpoint without any filter attatched with q=something', async () => {
+  it('test the endpoint without any filter attached with q=something', async () => {
     await request(app)
       .get('/api/v1/products/filter?q=something')
       .expect(200)
@@ -110,7 +118,7 @@ describe('Check for filters /products/filter', () => {
         })
       })
   })
-  it('test the endpoint without any filter attatched with q=wrongcase', async () => {
+  it('test the endpoint without any filter attached with q=wrongcase', async () => {
     await request(app)
       .get('/api/v1/products/filter?q=wrongcase')
       .expect(200)

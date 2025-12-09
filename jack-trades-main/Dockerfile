@@ -19,7 +19,7 @@ RUN apk add --no-cache python3 make g++ \
 RUN npm run build
 
 # Build React frontend
-RUN cd client && npm ci && npm run build
+RUN cd client && npm install && npm run build
 
 # Production stage
 FROM node:18-alpine

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:14-alpine
@@ -37,8 +35,8 @@ services:
       DEV_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/jack_trades_dev
       TEST_DB_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/jack_trades_test
       DATABASE_URL: postgres://${DB_USER:-jackuser}:${DB_PASSWORD:-jackpass}@postgres:5432/jack_trades_prod
-      SECRET_TOKEN: ${SECRET_TOKEN:-your-secret-key-here}
-      JACK_TRADES: http://frontend:3000
+      SECRET_KEY: your-secret-key-here
+      JACK_TRADES: http://jack-trades-frontend-dev:3000
     ports:
       - "8000:8000"
     depends_on:
@@ -56,10 +54,11 @@ services:
       - ./client:/app/client
       - node_modules_frontend:/app/client/node_modules
     environment:
-      - REACT_APP_API_URL=http://backend:8000/api/v1
+      - REACT_APP_API_URL=http://jack-trades-backend:8000/api/v1
+      - PROXY=http://jack-trades-backend:8000  
     ports:
       - "3000:3000"
-    command: sh -c "rm -rf node_modules/.package-lock.json && npm ci && npm start"
+    command: sh -c "rm -rf node_modules/.package-lock.json && npm install && npm start"
     depends_on:
       - backend
     networks:

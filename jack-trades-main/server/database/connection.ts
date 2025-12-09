@@ -7,9 +7,6 @@ const {
   NODE_ENV, DEV_DB_URL, TEST_DB_URL, DATABASE_URL,
 } = process.env;
 
-console.log('Current NODE_ENV:', NODE_ENV);
-console.log("process env", process.env);
-
 let url:string;
 let ssl:boolean | { rejectUnauthorized: boolean } = false;
 

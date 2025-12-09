@@ -2,7 +2,12 @@ import {
   Product, User, Category, Favorite,
 } from '../interfaces/fakeDataTypes';
 
-const data: { products: Product[], users: User[], categories: Category[], favorites: Favorite[] } = {
+const data: {
+  products: Product[],
+  users: User[],
+  categories: Category[],
+  favorites: Favorite[]
+} = {
   products: [
     {
       title: 'nice sofa',
@@ -117,8 +122,8 @@ const data: { products: Product[], users: User[], categories: Category[], favori
       category_id: 3,
     },
     {
+      description: 'Three Little Lies',
       title: 'Three Little Lies : A completely gripping thriller with a killer twist',
-      description: '',
       gallery: ['https://user-images.githubusercontent.com/54447254/196033930-76a731c9-0f14-406d-9442-72ff38c69102.png'],
       is_available: true,
       type: 'exchange',
@@ -126,10 +131,10 @@ const data: { products: Product[], users: User[], categories: Category[], favori
       category_id: 3,
     },
     {
-      title: 'The Secret Garden by Frances Hodgson Burnett is a magical novel for adults and children alike',
-      description: 'The Secret Garden',
+      title: 'The Secret Garden',
+      description: 'The Secret Garden by Frances Hodgson Burnett is a magical novel for adults and children alike',
       gallery: ['https://user-images.githubusercontent.com/54447254/196033952-66d4b6b3-64d4-462a-9703-f8aae1facbf0.png'],
-      is_available: false,
+      is_available: true,
       type: 'donation',
       user_id: 2,
       category_id: 3,
@@ -213,6 +218,10 @@ const data: { products: Product[], users: User[], categories: Category[], favori
     {
       name: 'Electronics',
       image: 'https://www.easy2digital.com/wp-content/uploads/2021/08/design-278978978989-Max-Quality-1024x576.jpg',
+    },
+    {
+      name: 'Kids',
+      image: 'https://st2.depositphotos.com/1000260/8939/i/950/depositphotos_89394704-stock-photo-children-painting-at-art-school.jpg',
     },
     {
       name: 'others',

@@ -76,6 +76,10 @@
   transition: border-color 0.5s, background-color 0.5s, color 0.5s;
 }
 
+input:-webkit-autofill { 
+    -webkit-background-clip: text;
+}
+
 @media (min-width: 992px) and (max-width: 1199.98px) {
   .signIn-container {
     padding: 2rem 3rem;
