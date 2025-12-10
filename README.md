@@ -57,7 +57,7 @@ Kubernetes components used:
 - ConfigMap
 - Traefik Ingress
 
-The application becomes available at: http://16.170.173.4
+The application becomes available at: http://13.60.60.167
 
 ## **6. Jenkins CI/CD Pipeline** 
 
@@ -72,7 +72,7 @@ Pipeline stages:
 - Build frontend image
 - Build backend image
 - Push both images
-- Deploy to K3s using
+- Deploy to K3s
 
 ## **Team Members Infrastructure Automation & DevOps Enhancements**
   - [Ahmed Elshewemy](https://github.com/AhmedElshewemy)
