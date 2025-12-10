@@ -72,16 +72,8 @@ pipeline {
                 }
             }
         }
-
-        stage('Restart Deployments') {
-            steps {
-                withKubeConfig(credentialsId: 'k3s-kubeconfig') {
-                    sh "kubectl rollout restart deployment/jack-trades-frontend -n jack-trades-ns"
-                    sh "kubectl rollout restart deployment/jack-trades-backend -n jack-trades-ns"
-                }
-            }
-        }
     }
+    
     post {
         success {
             emailext(
