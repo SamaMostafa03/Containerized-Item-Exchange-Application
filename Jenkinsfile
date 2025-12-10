@@ -7,7 +7,12 @@ pipeline {
         K8S_DIR = "jack-trades-main/k8s"
     }
 
+    triggers{
+        githubPush()
+    }
+
     stages {
+        
 
         stage('Checkout Code') {
             steps {
