@@ -74,7 +74,6 @@ Pipeline workflow:
 - Push both images
 - Update image tags in Kubernetes Manifests
 - Deploy to K3s cluster
-- Restart K3s deployments to pull the latest images.
 - Sends email alerts on pipeline success or failure
 
 ## **Team Members Infrastructure Automation & DevOps Enhancements**
