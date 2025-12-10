@@ -74,31 +74,4 @@ pipeline {
         }
     }
     
-    post {
-        success {
-            emailext(
-                to: "samamostafa507@gmail.com",
-                subject: "Jenkins Build SUCCESS: ${env.JOB_NAME} (#${env.BUILD_NUMBER})",
-                body: """
-                    <p> Build Succeeded!</p>
-                    <p><b>Build:</b> ${env.BUILD_NUMBER}</p>
-                    <p><b>Job:</b> ${env.JOB_NAME}</p>
-                    <p>View Build: ${env.BUILD_URL}</p>
-                """
-            )
-        }
-
-        failure {
-            emailext(
-                to: "samamostafa507@gmail.com",
-                subject: "Jenkins Build FAILURE: ${env.JOB_NAME} (#${env.BUILD_NUMBER})",
-                body: """
-                    <p>Build Failed!</p>
-                    <p><b>Build:</b> ${env.BUILD_NUMBER}</p>
-                    <p><b>Job:</b> ${env.JOB_NAME}</p>
-                    <p>View Console Log: ${env.BUILD_URL}console</p>
-                """
-            )
-        }
-    }
 }
