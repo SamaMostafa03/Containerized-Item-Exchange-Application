@@ -18,7 +18,7 @@ spec:
       containers:
       - name: frontend
         image: public.ecr.aws/a9o4o2s3/jack-frontend:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         env:
