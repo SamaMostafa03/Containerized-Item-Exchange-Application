@@ -85,10 +85,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Update kubeconfig
-      run: |
-        aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
-
     - name: Run Database Migration
       run: |
         kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
