@@ -69,7 +69,7 @@ jobs:
         script: |
           # Update deployment with new image
           kubectl set image deployment/jack-trades-backend \
-            jack-trades-backend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
+            backend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
             -n ${{ env.K8S_NAMESPACE }}
           
           # Wait for rollout
