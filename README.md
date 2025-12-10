@@ -65,14 +65,17 @@ Architecture:
 - Jenkins Controller → Manages jobs
 - Jenkins Worker → Builds Docker, pushes images, deploys to K3s
 
-Pipeline stages:
+Pipeline workflow:
 
 - Checkout GitHub repo
-- Log in to ECR Public
+- Log in to Amazon ECR 
 - Build frontend image
 - Build backend image
 - Push both images
-- Deploy to K3s
+- Update image tags in Kubernetes Manifests
+- Deploy to K3s cluster
+- Restart K3s deployments to pull the latest images.
+- Sends email alerts on pipeline success or failure
 
 ## **Team Members Infrastructure Automation & DevOps Enhancements**
   - [Ahmed Elshewemy](https://github.com/AhmedElshewemy)
