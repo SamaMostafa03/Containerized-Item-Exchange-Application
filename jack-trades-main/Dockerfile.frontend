@@ -6,6 +6,7 @@ COPY client/package*.json ./
 RUN npm ci
 
 COPY client ./
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 RUN npm run build
 
 # Use nginx to serve React
