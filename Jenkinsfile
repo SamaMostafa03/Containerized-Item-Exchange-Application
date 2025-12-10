@@ -12,15 +12,12 @@ pipeline {
     }
 
     stages {
-        
-
         stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/SamaMostafa03/Containerized-Item-Exchange-Application'
+                checkout scm
             }
         }
-        
+
         stage('AWS ECR Login') {
             steps {
                 withAWS(credentials: 'aws-access-key', region: 'us-east-1') {
