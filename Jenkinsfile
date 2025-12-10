@@ -54,6 +54,7 @@ pipeline {
             }
         }
 
+
         stage('Deploy to K3s') {
             steps {
                 withKubeConfig(credentialsId: 'k3s-kubeconfig') {
@@ -61,5 +62,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Restart Deployments') {
+            steps {
+                withKubeConfig(credentialsId: 'k3s-kubeconfig') {
+                    sh "kubectl rollout restart deployment/jack-trades-frontend"
+                    sh "kubectl rollout restart deployment/jack-trades-backend"
+                }
+            }
+        }
+
     }
 }
