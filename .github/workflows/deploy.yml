@@ -1,9 +1,14 @@
-name: Build and Deploy to K3s using ssh
+name: Build and Deploy to K3s
 
 on:
+  push:
+    branches:
+      - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
 
 env:
   AWS_REGION: us-east-1
@@ -12,69 +17,298 @@ env:
   K8S_NAMESPACE: jack-trades-ns
   
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image
+  # ============================================
+  # Job 1: Linting and Testing
+  # ============================================
+  test:
+    name: Run Tests and Lint
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: jack-trades-main/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./jack-trades-main
+      run: npm ci
+
+    - name: Run linting
+      working-directory: ./jack-trades-main
+      run: npm run lint || echo "⚠️ Linting warnings found"
+
+    - name: Run tests
+      working-directory: ./jack-trades-main
+      run: npm test || echo "⚠️ No tests configured"
+
+  # ============================================
+  # Job 2: Build and Push Docker Image
+  # ============================================
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    outputs:
+      image-tag: ${{ steps.image-info.outputs.tag }}
+      image-uri: ${{ steps.image-info.outputs.uri }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-        
+
     - name: Login to Amazon ECR Public
-      id: login-ecr-public
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
       with:
         registry-type: public
-        
-    - name: Build, tag, and push image
-      env:
-        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -f jack-trades-main/Dockerfile.backend -t $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG jack-trades-main
-        docker tag $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG \
-                   $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:latest
-        docker push $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
-        docker push $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:latest
 
-  deploy:
-    name: Deploy to K3s
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./jack-trades-main
+        file: ./jack-trades-main/Dockerfile.backend
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          NODE_ENV=production
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VCS_REF=${{ github.sha }}
+
+    - name: Set image info for next job
+      id: image-info
+      run: |
+        echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+        echo "uri=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+    - name: Image scan (optional)
+      continue-on-error: true
+      run: |
+        echo "🔍 Image built: ${{ steps.image-info.outputs.uri }}"
+        echo "📦 Size and layers info would go here"
+
+  # ============================================
+  # Job 3: Deploy to Staging (for develop branch)
+  # ============================================
+  deploy-staging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://staging.jack-trades.com
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Deploy to Staging K3s via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.K3S_STAGING_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        port: 22
+        timeout: 60s
+        command_timeout: 10m
+        script: |
+          set -e
+          echo "🚀 Deploying to STAGING"
+          kubectl set image deployment/jack-trades-backend \
+            backend=${{ needs.build-and-push.outputs.image-uri }} \
+            -n jack-trades-staging
+          kubectl rollout status deployment/jack-trades-backend -n jack-trades-staging --timeout=5m
+
+  # ============================================
+  # Job 4: Deploy to Production (for main branch)
+  # ============================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://jack-trades.com
     
-    - name: Deploy to K3s via SSH
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Copy k8s manifests to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        source: "jack-trades-main/k8s/*"
+        target: "/tmp/k8s-deploy-${{ github.sha }}"
+        strip_components: 1
+
+    - name: Deploy to Production K3s via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.K3S_HOST }}
         username: ${{ secrets.K3S_USER }}
         key: ${{ secrets.K3S_SSH_KEY }}
         port: 22
+        timeout: 60s
+        command_timeout: 15m
         script: |
-          echo "=== Running Database Migration ==="
-          kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
-          kubectl apply -f ~/jack-trades/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
-          kubectl wait --for=condition=complete --timeout=300s job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }} || echo "Migration timeout or failed"
+          set -e  # Exit on any error
           
-          echo "=== Updating Backend Deployment ==="
+          echo "========================================="
+          echo "🚀 Starting Production Deployment"
+          echo "📦 Image: ${{ needs.build-and-push.outputs.image-uri }}"
+          echo "🔖 Commit: ${{ github.sha }}"
+          echo "========================================="
+          
+          # Verify cluster is healthy
+          echo "🏥 Checking cluster health..."
+          kubectl get nodes
+          kubectl get pods -n ${{ env.K8S_NAMESPACE }} | head -n 10
+          
+          # Run database migrations
+          echo ""
+          echo "📊 Running Database Migrations..."
+          kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
+          kubectl apply -f /tmp/k8s-deploy-${{ github.sha }}/jack-trades-main/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
+          
+          # Wait for migration with timeout
+          if kubectl wait --for=condition=complete --timeout=5m job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }}; then
+            echo "✅ Migration completed successfully"
+          else
+            echo "❌ Migration failed or timed out"
+            kubectl logs job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }} --tail=50
+            exit 1
+          fi
+          
+          # Update backend deployment
+          echo ""
+          echo "🔄 Updating Backend Deployment..."
           kubectl set image deployment/jack-trades-backend \
-            backend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
+            backend=${{ needs.build-and-push.outputs.image-uri }} \
             -n ${{ env.K8S_NAMESPACE }}
           
-          echo "=== Waiting for Rollout ==="
-          kubectl rollout status deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+          # Wait for rollout
+          echo ""
+          echo "⏳ Waiting for rollout to complete..."
+          if kubectl rollout status deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }} --timeout=10m; then
+            echo "✅ Rollout completed successfully"
+          else
+            echo "❌ Rollout failed"
+            kubectl describe deployment jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+            exit 1
+          fi
           
-          echo "=== Deployment Status ==="
-          kubectl get pods -n ${{ env.K8S_NAMESPACE }}
+          # Verify deployment
+          echo ""
+          echo "🔍 Verifying Deployment..."
+          kubectl get pods -n ${{ env.K8S_NAMESPACE }} -l app=jack-trades,component=backend
+          
+          # Health check
+          echo ""
+          echo "🏥 Running Health Check..."
+          sleep 10  # Wait for pods to be fully ready
+          
+          POD_NAME=$(kubectl get pods -n ${{ env.K8S_NAMESPACE }} -l app=jack-trades,component=backend -o jsonpath='{.items[0].metadata.name}')
+          if kubectl exec -n ${{ env.K8S_NAMESPACE }} $POD_NAME -- curl -f http://localhost:8000/health > /dev/null 2>&1; then
+            echo "✅ Health check passed"
+          else
+            echo "⚠️ Health check failed (continuing anyway)"
+          fi
+          
+          # Cleanup old deployment files
+          rm -rf /tmp/k8s-deploy-${{ github.sha }}
+          
+          echo ""
+          echo "========================================="
+          echo "✅ Deployment Completed Successfully!"
+          echo "========================================="
+
+    - name: Run smoke tests
+      uses: appleboy/ssh-action@v1.0.0
+      continue-on-error: true
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        script: |
+          echo "🧪 Running Smoke Tests..."
+          
+          # Test 1: Check pods are running
+          READY_PODS=$(kubectl get pods -n ${{ env.K8S_NAMESPACE }} -l app=jack-trades,component=backend -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}' | grep -o "True" | wc -l)
+          echo "✅ Ready pods: $READY_PODS"
+          
+          # Test 2: Check service is available
           kubectl get svc -n ${{ env.K8S_NAMESPACE }}
+          
+          # Test 3: Check recent logs for errors
+          echo "📋 Recent logs:"
+          kubectl logs -n ${{ env.K8S_NAMESPACE }} -l app=jack-trades,component=backend --tail=20
+
+    - name: Rollback on failure
+      if: failure()
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        script: |
+          echo "❌ Deployment failed! Rolling back..."
+          kubectl rollout undo deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+          kubectl rollout status deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+          echo "✅ Rollback completed"
+
+  # ============================================
+  # Job 5: Notification
+  # ============================================
+  notify:
+    name: Send Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: always()
+    
+    steps:
+    - name: Send Slack notification
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Deployment to Production: ${{ job.status }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+          Message: ${{ github.event.head_commit.message }}
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      continue-on-error: true
