@@ -3,7 +3,7 @@ name: Build and Deploy to K3s
 on:
   pull_request:
     branches:
-      - mai
+      - main
 
 env:
   AWS_REGION: us-east-1
