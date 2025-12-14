@@ -99,6 +99,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+  # NEW STEP: Copy k8s files to server
+    - name: Copy k8s manifests to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        source: "jack-trades-main/k8s/*"
+        target: "/tmp/k8s-deploy"
+        strip_components: 1
+    
     - name: Deploy to K3s via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -110,7 +121,10 @@ jobs:
           # Stop the script if any command fails
           set -e
          
+         
+          # ============================================
           echo "=== Running Database Migration ==="
+          # ============================================
          
           kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
           kubectl apply -f ~/jack-trades/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
@@ -124,6 +138,9 @@ jobs:
             exit 1
           fi
           
+
+
+          # ============================================
           echo "=== Updating Backend Deployment ==="
           
           # Tell Kubernetes to update the backend deployment with the new image
