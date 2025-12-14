@@ -155,7 +155,7 @@ jobs:
           # Tell Kubernetes to update the frontend deployment with the new image
           kubectl set image deployment/jack-trades-frontend \
             frontend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:${{ github.sha }} \
-            -n ${{ env.K8S_NAMESPACE }
+            -n ${{ env.K8S_NAMESPACE }}
 
 
 
