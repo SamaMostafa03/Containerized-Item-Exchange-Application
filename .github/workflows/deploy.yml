@@ -1,7 +1,7 @@
 name: Build and Deploy to K3s using ssh
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
