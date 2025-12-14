@@ -107,19 +107,89 @@ jobs:
         key: ${{ secrets.K3S_SSH_KEY }}
         port: 22
         script: |
+          # Stop the script if any command fails
+          set -e
+         
           echo "=== Running Database Migration ==="
+         
           kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
           kubectl apply -f ~/jack-trades/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
-          kubectl wait --for=condition=complete --timeout=300s job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }} || echo "Migration timeout or failed"
+          if kubectl wait --for=condition=complete --timeout=5m job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }}; then
+            echo "Migration completed successfully"
+          else
+            echo "Migration failed or timed out"
+
+            # Show the logs from the failed migration so we can debug
+            kubectl logs job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }} --tail=30
+            exit 1
+          fi
           
           echo "=== Updating Backend Deployment ==="
+          
+          # Tell Kubernetes to update the backend deployment with the new image
+          # This triggers a rolling update: new pods start, old pods terminate
           kubectl set image deployment/jack-trades-backend \
-            backend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
+            backend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:${{ github.sha }} \
             -n ${{ env.K8S_NAMESPACE }}
           
           echo "=== Waiting for Rollout ==="
-          kubectl rollout status deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+
+          # Wait for the backend rollout to complete (max 10 minutes)
+          if kubectl rollout status deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }} --timeout=10m; then
+            echo "Backend deployment successful"
+          else
+            echo "Backend deployment failed"
+            # Show details about what went wrong
+            kubectl describe deployment jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+            exit 1
+          fi
+
+
+          # ============================================
+          # Step 3: Update Frontend Deployment
+          # ============================================
+          echo ""
+          echo " Updating Frontend Deployment..."
+
+
+          # Tell Kubernetes to update the frontend deployment with the new image
+          kubectl set image deployment/jack-trades-frontend \
+            frontend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:${{ github.sha }} \
+            -n ${{ env.K8S_NAMESPACE }
+
+
+
+          # Wait for the frontend rollout to complete (max 10 minutes)
+          if kubectl rollout status deployment/jack-trades-frontend -n ${{ env.K8S_NAMESPACE }} --timeout=10m; then
+            echo "✅ Frontend deployment successful"
+          else
+            echo "❌ Frontend deployment failed"
+            # Show details about what went wrong
+            kubectl describe deployment jack-trades-frontend -n ${{ env.K8S_NAMESPACE }}
+            exit 1
+          fi
+
+
+           # ============================================
+          # Step 4: Verify Everything is Running
+          # ============================================
+          echo ""
+          echo "📋 Final Deployment Status:"
+          echo "================================================"
           
-          echo "=== Deployment Status ==="
+          # Show all pods in your namespace
+          echo ""
+          echo "Running Pods:"
           kubectl get pods -n ${{ env.K8S_NAMESPACE }}
+          
+          # Show all services (how traffic reaches your apps)
+          echo ""
+          echo "Services:"
           kubectl get svc -n ${{ env.K8S_NAMESPACE }}
+          
+          echo ""
+          echo "================================================"
+          echo "✅ Full Stack Deployment Complete!"
+          echo "================================================"
+
+
