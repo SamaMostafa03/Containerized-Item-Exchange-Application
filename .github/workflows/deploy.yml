@@ -127,7 +127,7 @@ jobs:
           # ============================================
          
           kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
-          kubectl apply -f /tmp/k8s-deploy/jack-trades/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
+          kubectl apply -f /tmp/k8s-deploy/jack-trades-main/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
           if kubectl wait --for=condition=complete --timeout=5m job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }}; then
             echo "Migration completed successfully"
           else
