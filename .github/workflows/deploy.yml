@@ -113,8 +113,8 @@ jobs:
           
           # Pull latest changes from GitHub first
           echo "📥 Updating k8s manifests..."
-          cd ~/Containerized-Item-Exchange-Application
-          git pull origin main
+          git fetch origin
+          git reset --hard origin/main 
          
           # ============================================
           echo "=== Running Database Migration ==="
