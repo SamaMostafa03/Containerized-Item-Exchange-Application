@@ -99,16 +99,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-  # NEW STEP: Copy k8s files to server
-    - name: Copy k8s manifests to server
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.K3S_HOST }}
-        username: ${{ secrets.K3S_USER }}
-        key: ${{ secrets.K3S_SSH_KEY }}
-        source: "jack-trades-main/k8s/*"
-        target: "/tmp/k8s-deploy"
-        strip_components: 1
     
     - name: Deploy to K3s via SSH
       uses: appleboy/ssh-action@v1.0.0
