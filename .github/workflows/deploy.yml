@@ -1,10 +1,27 @@
-name: Build and Deploy to K3s using ssh
+name: Build and Deploy to K3s using SSH
 
 on:
   push:
     branches:
       - main
 
+    paths:
+      - 'jack-trades-main/client/**'      # Frontend changes
+      - 'jack-trades-main/server/**'      # Backend changes
+      - 'jack-trades-main/k8s/**'         # K8s config changes
+      - 'jack-trades-main/Dockerfile.*'   # Dockerfile changes
+   #   - '.github/workflows/**'            # Pipeline changes
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'jack-trades-main/client/**'
+      - 'jack-trades-main/server/**'
+      - 'jack-trades-main/k8s/**'
+      - 'jack-trades-main/Dockerfile.*'
+
+      
 env:
   AWS_REGION: us-east-1
   ECR_REGISTRY_ALIAS: a9o4o2s3
