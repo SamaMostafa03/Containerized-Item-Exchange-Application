@@ -111,10 +111,6 @@ jobs:
           # Stop the script if any command fails
           set -e
           
-          # Pull latest changes from GitHub first
-          echo "📥 Updating k8s manifests..."
-          git fetch origin
-          git reset --hard origin/main 
          
           # ============================================
           echo "=== Running Database Migration ==="
