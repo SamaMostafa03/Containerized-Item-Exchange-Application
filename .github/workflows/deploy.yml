@@ -110,7 +110,11 @@ jobs:
         script: |
           # Stop the script if any command fails
           set -e
-         
+          
+          # Pull latest changes from GitHub first
+          echo "📥 Updating k8s manifests..."
+          cd ~/Containerized-Item-Exchange-Application
+          git pull origin main
          
           # ============================================
           echo "=== Running Database Migration ==="
