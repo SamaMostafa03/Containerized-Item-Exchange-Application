@@ -47,6 +47,7 @@ pipeline {
             }
         }
          stage('Build Images in Parallel') {
+             failFast true
             parallel {
                 // Frontend build runs in parallel
                 stage('Build Frontend') {
