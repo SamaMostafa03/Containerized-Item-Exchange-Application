@@ -126,6 +126,14 @@ pipeline {
                 """
             )
         }
+         always {
+            echo 'Cleaning up...'
+            // Clean up Docker images to save space
+            sh """
+            docker rmi $FRONTEND_IMAGE:$IMAGE_TAG || true
+            docker rmi $BACKEND_IMAGE:$IMAGE_TAG || true
+            """
+        }
     }
     
 }
