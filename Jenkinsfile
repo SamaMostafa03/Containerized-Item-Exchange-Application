@@ -46,6 +46,31 @@ pipeline {
                 }
             }
         }
+         stage('Build Images in Parallel') {
+            parallel {
+                // Frontend build runs in parallel
+                stage('Build Frontend') {
+                    steps {
+                        echo 'Building Frontend Image...'
+                        dir('jack-trades-main') {
+                            sh "docker build -f Dockerfile.frontend -t $FRONTEND_IMAGE:$IMAGE_TAG ."
+                        }
+                        echo 'Frontend build complete'
+                    }
+                }
+                
+                // Backend build runs in parallel (at the same time as frontend)
+                stage('Build Backend') {
+                    steps {
+                        echo 'Building Backend Image...'
+                        dir('jack-trades-main') {
+                            sh "docker build -f Dockerfile.backend -t $BACKEND_IMAGE:$IMAGE_TAG ."
+                        }
+                        echo 'Backend build complete.'
+                    }
+                }
+            }
+        }
 
         stage('Push Images to Public ECR') {
             steps {
