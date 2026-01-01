@@ -1,0 +1,374 @@
+name: Build and Deploy to K3s using SSH
+
+on:
+  pull_request:
+    branches:
+      - main
+
+    paths:
+      - 'jack-trades-main/client/**'      # Frontend changes
+      - 'jack-trades-main/server/**'      # Backend changes
+      - 'jack-trades-main/k8s/**'         # K8s config changes
+      - 'jack-trades-main/Dockerfile.*'   # Dockerfile changes
+   #   - '.github/workflows/**'            # Pipeline changes
+
+      
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY_ALIAS: a9o4o2s3
+  ECR_BACKEND_REPOSITORY: jack-backend
+  ECR_FRONTEND_REPOSITORY: jack-frontend
+  K8S_NAMESPACE: jack-trades-ns
+  
+jobs:
+
+  # ============================================
+  # Detect what changed
+  # ============================================
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      k8s: ${{ steps.filter.outputs.k8s }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check which files changed
+      uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          backend:
+            - 'jack-trades-main/server/**'
+            - 'jack-trades-main/Dockerfile.backend'
+            - 'jack-trades-main/package.json'
+            - 'jack-trades-main/tsconfig.json'
+          frontend:
+            - 'jack-trades-main/client/**'
+            - 'jack-trades-main/Dockerfile.frontend'
+          k8s:
+            - 'jack-trades-main/k8s/**'
+
+  # ============================================
+  # Build and Push Backend Docker Image
+  # ============================================
+  build-backend:
+    name: Build and Push Backend Docker Image
+    runs-on: ubuntu-latest
+    needs: changes
+    # Only run if backend files changed
+    if: needs.changes.outputs.backend == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Login to Amazon ECR Public
+      id: login-ecr-public
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        registry-type: public
+        
+    - name: Build, tag, and push backend image
+      env:
+        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -f jack-trades-main/Dockerfile.backend -t $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:$IMAGE_TAG jack-trades-main
+        docker tag $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:$IMAGE_TAG \
+                   $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:latest
+        docker push $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:$IMAGE_TAG
+        docker push $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:latest
+        
+        echo "Backend image pushed successfully!"
+
+   
+  build-frontend:
+    name: Build and Push Frontend Image
+    runs-on: ubuntu-latest
+    needs: changes
+    # Only run if frontend files changed
+    if: needs.changes.outputs.frontend == 'true'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR Public
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        registry-type: public
+
+    - name: Build, tag, and push frontend image
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build the frontend using Dockerfile.frontend
+        docker build \
+          -f jack-trades-main/Dockerfile.frontend \
+          -t $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:$IMAGE_TAG \
+          jack-trades-main
+
+        docker tag $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:$IMAGE_TAG \
+                   $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:latest
+
+        docker push $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:$IMAGE_TAG
+        docker push $REGISTRY/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:latest
+        
+        echo "✅ Frontend image pushed successfully!"
+
+
+
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: [changes, build-backend]
+    if: |
+      github.ref == 'refs/heads/main' && 
+      github.event_name == 'push' &&
+      needs.changes.outputs.backend == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy Backend to K3s via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        port: 22
+        script: |
+          # Stop the script if any command fails
+          set -e
+          echo "Deploying Backend Only..."
+
+                    # ============================================
+          echo "=== Running Database Migration ==="
+          # ============================================
+         
+          kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
+          kubectl apply -f ~/Containerized-Item-Exchange-Application/jack-trades-main/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
+          if kubectl wait --for=condition=complete --timeout=5m job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }}; then
+            echo "Migration completed successfully"
+          else
+            echo "Migration failed or timed out"
+
+            # Show the logs from the failed migration so we can debug
+            kubectl logs job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }} --tail=30
+            exit 1
+          fi
+
+          echo "=== Updating Backend Deployment ==="
+           
+          kubectl set image deployment/jack-trades-backend \
+          backend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:${{ github.sha }} \
+          -n ${{ env.K8S_NAMESPACE }}
+
+          echo "=== Waiting for Rollout ==="
+
+          # Wait for the backend rollout to complete (max 10 minutes)
+          if kubectl rollout status deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }} --timeout=10m; then
+            echo "Backend deployment successful"
+          else
+            echo "Backend deployment failed"
+            # Show details about what went wrong
+            kubectl describe deployment jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+            exit 1
+          fi
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: [changes, build-frontend]
+    if: |
+      github.ref == 'refs/heads/main' && 
+      github.event_name == 'push' &&
+      needs.changes.outputs.frontend == 'true'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy Frontend to K3s
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        port: 22
+        script: |
+          set -e
+          
+          kubectl set image deployment/jack-trades-frontend \
+            frontend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:${{ github.sha }} \
+            -n ${{ env.K8S_NAMESPACE }}
+
+          # Wait for the frontend rollout to complete (max 10 minutes)
+          if kubectl rollout status deployment/jack-trades-frontend -n ${{ env.K8S_NAMESPACE }} --timeout=10m; then
+            echo "✅ Frontend deployment successful"
+          else
+            echo "❌ Frontend deployment failed"
+            # Show details about what went wrong
+            kubectl describe deployment jack-trades-frontend -n ${{ env.K8S_NAMESPACE }}
+            exit 1
+          fi
+
+  deploy-both:
+    name: Deploy to K3s (Backend + Frontend)
+    runs-on: ubuntu-latest
+    needs: [changes, build-backend, build-frontend]
+     # Run if both changed, or if k8s configs changed
+    if: |
+      always() &&
+      github.ref == 'refs/heads/main' && 
+      github.event_name == 'push' &&
+      (
+        (needs.changes.outputs.backend == 'true' && needs.changes.outputs.frontend == 'true') ||
+        needs.changes.outputs.k8s == 'true'
+      ) &&
+      (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') &&
+      (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Copy k8s manifests to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        source: "jack-trades-main/k8s/*"
+        target: "/tmp/k8s-deploy"
+
+    - name: Deploy Full Stack to K3s via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.K3S_HOST }}
+        username: ${{ secrets.K3S_USER }}
+        key: ${{ secrets.K3S_SSH_KEY }}
+        port: 22
+        script: |
+          # Stop the script if any command fails
+          set -e
+          
+         
+          # ============================================
+          echo "=== Running Database Migration ==="
+          # ============================================
+         
+          kubectl delete job jack-trades-db-migrate --ignore-not-found=true -n ${{ env.K8S_NAMESPACE }}
+          kubectl apply -f ~/Containerized-Item-Exchange-Application/jack-trades-main/k8s/migration-job.yaml -n ${{ env.K8S_NAMESPACE }}
+          if kubectl wait --for=condition=complete --timeout=5m job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }}; then
+            echo "Migration completed successfully"
+          else
+            echo "Migration failed or timed out"
+
+            # Show the logs from the failed migration so we can debug
+            kubectl logs job/jack-trades-db-migrate -n ${{ env.K8S_NAMESPACE }} --tail=30
+            exit 1
+          fi
+          
+          # Apply all k8s configs
+          echo "Applying Kubernetes manifests..."
+          kubectl apply -f /tmp/k8s-deploy/jack-trades-main/k8s/ -n ${{ env.K8S_NAMESPACE }}
+          
+
+
+          # ============================================
+          echo "=== Updating Backend Deployment ==="
+          
+          # Tell Kubernetes to update the backend deployment with the new image
+          # This triggers a rolling update: new pods start, old pods terminate
+          kubectl set image deployment/jack-trades-backend \
+            backend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_BACKEND_REPOSITORY }}:${{ github.sha }} \
+            -n ${{ env.K8S_NAMESPACE }}
+          
+          echo "=== Waiting for Rollout ==="
+
+          # Wait for the backend rollout to complete (max 10 minutes)
+          if kubectl rollout status deployment/jack-trades-backend -n ${{ env.K8S_NAMESPACE }} --timeout=10m; then
+            echo "Backend deployment successful"
+          else
+            echo "Backend deployment failed"
+            # Show details about what went wrong
+            kubectl describe deployment jack-trades-backend -n ${{ env.K8S_NAMESPACE }}
+            exit 1
+          fi
+
+
+          # ============================================
+          # Step 3: Update Frontend Deployment
+          # ============================================
+          echo ""
+          echo " Updating Frontend Deployment..."
+
+
+          # Tell Kubernetes to update the frontend deployment with the new image
+          kubectl set image deployment/jack-trades-frontend \
+            frontend=public.ecr.aws/${{ env.ECR_REGISTRY_ALIAS }}/${{ env.ECR_FRONTEND_REPOSITORY }}:${{ github.sha }} \
+            -n ${{ env.K8S_NAMESPACE }}
+
+
+
+          # Wait for the frontend rollout to complete (max 10 minutes)
+          if kubectl rollout status deployment/jack-trades-frontend -n ${{ env.K8S_NAMESPACE }} --timeout=10m; then
+            echo "Frontend deployment successful"
+          else
+            echo "Frontend deployment failed"
+            # Show details about what went wrong
+            kubectl describe deployment jack-trades-frontend -n ${{ env.K8S_NAMESPACE }}
+            exit 1
+          fi
+
+          # Cleanup
+          rm -rf /tmp/k8s-deploy
+          
+          echo "Full Stack Deployment Complete!"
+
+           # ============================================
+          # Step 4: Verify Everything is Running
+          # ============================================
+          echo ""
+          echo " Final Deployment Status:"
+          echo "================================================"
+          
+          # Show all pods in your namespace
+          echo ""
+          echo "Running Pods:"
+          kubectl get pods -n ${{ env.K8S_NAMESPACE }}
+          
+          # Show all services (how traffic reaches your apps)
+          echo ""
+          echo "Services:"
+          kubectl get svc -n ${{ env.K8S_NAMESPACE }}
+          
+          echo ""
+          echo "================================================"
+          echo "Full Stack Deployment Complete!"
+          echo "================================================"
+
+
